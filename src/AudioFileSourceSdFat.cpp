@@ -1,6 +1,7 @@
 /*
   AudioFileSourceSPIFFS
   Input SD card "file" to be used by AudioGenerator
+  Adapted for SdFat
   
   Copyright (C) 2017  Earle F. Philhower, III
 
@@ -18,61 +19,62 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "AudioFileSourceSD.h"
+#include "AudioFileSourceSdFat.h"
 
-AudioFileSourceSD::AudioFileSourceSD()
+AudioFileSourceSdFat::AudioFileSourceSdFat() : f(SdFile())
 {
 }
 
-AudioFileSourceSD::AudioFileSourceSD(const char *filename)
+AudioFileSourceSdFat::AudioFileSourceSdFat(const char *filename)
 {
   open(filename);
 }
 
-bool AudioFileSourceSD::open(const char *filename)
+bool AudioFileSourceSdFat::open(const char *filename)
 {
-  f = SD.open(filename, FILE_READ);
+  close();
+  f.open(filename, FILE_READ);
   return f;
 }
 
-AudioFileSourceSD::~AudioFileSourceSD()
+AudioFileSourceSdFat::~AudioFileSourceSdFat()
 {
   if (f) f.close();
 }
 
-uint32_t AudioFileSourceSD::read(void *data, uint32_t len)
+uint32_t AudioFileSourceSdFat::read(void *data, uint32_t len)
 {
   return f.read(reinterpret_cast<uint8_t*>(data), len);
 }
 
-bool AudioFileSourceSD::seek(int32_t pos, int dir)
+bool AudioFileSourceSdFat::seek(int32_t pos, int dir)
 {
   if (!f) return false;
-  if (dir==SEEK_SET) return f.seek(pos);
-  else if (dir==SEEK_CUR) return f.seek(f.position() + pos);
-  else if (dir==SEEK_END) return f.seek(f.size() + pos);
+  if (dir==SEEK_SET) return  f.seekSet(pos);
+  else if (dir==SEEK_CUR) return f.seekSet(f.curPosition() + pos);
+  else if (dir==SEEK_END) return f.seekSet(f.fileSize() + pos);
   return false;
 }
 
-bool AudioFileSourceSD::close()
+bool AudioFileSourceSdFat::close()
 {
   f.close();
   return true;
 }
 
-bool AudioFileSourceSD::isOpen()
+bool AudioFileSourceSdFat::isOpen()
 {
-  return f?true:false;
+  return f.isOpen();
 }
 
-uint32_t AudioFileSourceSD::getSize()
+uint32_t AudioFileSourceSdFat::getSize()
 {
   if (!f) return 0;
-  return f.size();
+  return f.fileSize();
 }
 
-uint32_t AudioFileSourceSD::getPos()
+uint32_t AudioFileSourceSdFat::getPos()
 {
   if (!f) return 0;
-  return f.position();
+  return f.curPosition();
 }

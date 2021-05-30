@@ -1,6 +1,7 @@
 /*
   AudioFileSourceSPIFFS
   Input SD card "file" to be used by AudioGenerator
+  Adapted for SdFat
   
   Copyright (C) 2017  Earle F. Philhower, III
 
@@ -17,20 +18,18 @@
   You should have received a copy of the GNU General Public License
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-
-#ifndef _AUDIOFILESOURCESD_H
-#define _AUDIOFILESOURCESD_H
+#pragma once
 
 #include "AudioFileSource.h"
-#include <SD.h>
+#include <SdFat.h>
 
 
-class AudioFileSourceSD : public AudioFileSource
+class AudioFileSourceSdFat : public AudioFileSource
 {
   public:
-    AudioFileSourceSD();
-    AudioFileSourceSD(const char *filename);
-    virtual ~AudioFileSourceSD() override;
+    AudioFileSourceSdFat();
+    AudioFileSourceSdFat(const char *filename);
+    virtual ~AudioFileSourceSdFat() override;
     
     virtual bool open(const char *filename) override;
     virtual uint32_t read(void *data, uint32_t len) override;
@@ -41,9 +40,7 @@ class AudioFileSourceSD : public AudioFileSource
     virtual uint32_t getPos() override;
 
   private:
-    File f;
+    SdFile f;
 };
 
-
-#endif
 
